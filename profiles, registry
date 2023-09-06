@@ -1,4 +1,4 @@
-stack number 4 ip address 10.50.44.37 
+newstack number 4 ip address 10.50.44.37 
 https://os.cybbh.io/public/os/latest/index.html
 https://vta.cybbh.space/horizon/project/instances/
 https://os.cybbh.io/public/os/latest/index.html
@@ -147,6 +147,7 @@ Mount a Registry Hive With PSDrive
     Create Temporary or Permanent connections to navigate the registry
 
         New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS
+PSdrives need a name, provider, and root 
 
 Using the Registry
 
