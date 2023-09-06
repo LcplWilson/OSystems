@@ -482,3 +482,23 @@ $Server = "lon-fs1"
 $Reg = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', $Server)
 $RegKey= $Reg.OpenSubKey("System\Setup")
 $RegValue = $RegKey.GetValue("WorkingDirectory")
+
+
+high risk locations
+
+
+HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+
+HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce
+
+HKU\<SID>\Software\Microsoft\Windows\CurrentVersion\Run
+
+HKU\<SID>\Software\Microsoft\Windows\CurrentVersion\RunOnce
+
+HKLM\SYSTEM\CurrentControlSet\services
+
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
+
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders
+
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
