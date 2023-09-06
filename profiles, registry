@@ -75,6 +75,10 @@ if ($a -gt 2){
    
     *$profile 
 
+new-item -itemtype file -path $profile.currentusercurrenthost -force
+
+new-alias -name ip -value get-nettcpconnection
+
 #execution polict, can i run .ps1 powershell scriptd
 Get-ExecutionPolicy
 #comparison opperator
