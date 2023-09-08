@@ -1142,3 +1142,12 @@ write     w           2     Write content into a file         Create/delete in t
 exe       x           1     Run the file as an executable     Move into the directory
 
 
+ssh -J adi
+
+
+windows 
+services 
+bcdedit = how to change the boot configureation
+sc query = list services and can add the direct service to get a specific one
+tasklist \svc
+get-service
