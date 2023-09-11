@@ -1380,7 +1380,11 @@ Resources
 
 
 
+xxd = hexdump
+dd  = bit for bit copy
 
 
+
+persistance in /etc/init.d, /etc/profile.d, /etc/envirment and /etc/.bash_profile /etc/rc#.d
 
 
