@@ -1151,3 +1151,236 @@ bcdedit = how to change the boot configureation
 sc query = list services and can add the direct service to get a specific one
 tasklist \svc
 get-service
+
+
+
+
+linux boot
+
+
+Big Mike Got Killed In Russia 1 (SysV)
+
+    BIOS -Basic Input Output System
+
+    MBR -Master Boot Record
+
+    GRUB -Grand Unified Bootloader
+
+    Kernel
+
+    Init (SysV or SystemD)
+
+    Runlevels
+
+
+    The machine’s BIOS or boot firmware loads and runs a boot loader.
+
+    The boot loader(“Grub” located in MBR) finds the kernel image on disk, loads it into memory, and starts it.
+
+    The kernel initializes the devices and its drivers.
+
+    The kernel mounts the root filesystem.
+
+    The kernel starts a program called init with a process ID of 1. This point is the user space start.
+
+    Init sets the rest of the system processes in motion via pre-configured runlevels.
+
+https://git.cybbh.space/os/public/raw/master/images/sysV_systemd_boot_process.png
+
+
+Big Mike Got Killed In Russia (SysV)
+
+    BIOS
+
+        First program to run on startup (Flash or ROM)
+
+            If stored in flash memory → becomes a target for BIOS Rootkits
+
+        Performs POST - Power On Self Test
+
+        Performs system integrity checks
+
+        Builds a device tree (mice, keyboard, hard drive, video cards, etc..)
+
+        Reads and executes the first sector on the boot disk (MBR) to load bootloader to memory
+    
+
+MBR - Master Boot Record
+
+        Located at the very beginning of the bootable disk (512 bytes) and contains the primary bootloader, partition table and MBR validity check
+
+        Contains code for GRUB - Grand Unified Boot Loader
+
+        (Note: Could also contain LILO - Linux Loader)
+
+MBR
+
+    First 512 bytes of the HD
+
+    Hard disks utilizing a MBR can have a maximum of 4 primary partitions and a max size of 2 TB each.
+
+        Typically the MBR is located on /dev/hda or /dev/sda (/dev/vda)
+
+        It contains information about GRUB (or LILO or other Boot Loader system)
+
+    Other related commands:
+
+        du - disk usage: summarize disk usage of the set of FILEs
+
+        df - disk free : displays the amount of disk space available on the file system
+
+        lsblk - lists information about all available - or specified - block devices
+
+
+    GRUB - Grand Unified Bootloader
+
+        Dynamically configurable with the capability to make changes during boot
+
+            Config File - /boot/grub/menu.lst
+
+            Altering boot entries, selecting different kernels, and modifying the initial RAM disk (initrd)
+
+        OS Selection screen where if no choice is made, default kernel specified in the grub configuration file
+
+        Bootloader (GRUB) passes text based kernel parameters (Ex. root=UUID=70cc6e89…,ro, splash). If not recognized, the option will be passed to init (i.e. ‘-s’ for single-user mode)
+
+        Kernel options are sometimes configurable at the menu with the ‘e’ key
+
+    Kernel
+
+        Uncompresses itself into RAM
+
+        Establishes memory management, detects CPU type, page tables
+
+        Mounts the root ‘/ ’ filesystem
+
+        kernel is process 0 [kthreadd]
+
+        Executes /sbin/init or systemd daemon, the very first process started by the kernel with a process ID (PID) of 1
+
+        ‘ls -l /sbin/init’ to determine which Init system you are using
+
+
+
+    Configures the environment for the system
+
+        Looks at the /etc/inittab
+
+        Available run levels 0 - 6
+
+        Identifies the default 'init' run level from /etc/inittab and uses that to load all the appropriate programs
+
+        The entire startup process is handled by scripts
+
+            /etc/init.d/
+
+            Scripts that run ‘S’tart and ‘K’ill scripts out of applicable rc folders
+
+        'service <service name> start | stop | restart | status | reload | …​''
+
+        ‘service --status-all’
+
+    inittab line descriptions (rc = run commands)
+
+        All lines in inittab take the following form, with four fields separated by colons in this order:
+
+            A unique identifier (a short string, such as id in the previous example)
+
+            The applicable runlevel number(s)
+
+            The action that init should take (default runlevel to 5 in the previous example)
+
+
+
+    Loads system in parallel and from binaries (faster and more secure)
+
+    Instead of runlevels, uses 'targets' that point to other dependencies based on the features of the environment desired
+
+        ‘default.target’ is essentially the default runlevel (equivalent to id:5:initdefault in /etc/inittab). Use ‘systemctl get-default’ to find it, and ‘systemctl set-default’ to change it.
+
+    ‘systemctl list-dependencies’ shows all the services running under default.target
+
+    Uses 'systemctl’ to manage system (backwards compatible)
+
+        ‘systemctl status <application>.service’
+
+        ‘systemctl list-units’
+
+    Config: /etc/systemd/ and /etc/systemd/system
+
+
+
+    /lib/systemd/system 'ls -l | grep -v wants | grep run’
+
+        runlevel0.target - > poweroff.target
+
+        runlevel1.target - > rescue.target
+
+        runlevel2.target - > multi-user.target
+
+        runlevel3.target - > multi-user.target
+
+        runlevel4.target - > multi-user.target
+
+        runlevel5.target - > graphical.target
+
+        runlevel6.target - > reboot.target
+
+
+    A runlevel is a software configuration where only a select group of processes exist
+
+        0 - halt (Do NOT set initdefault to this)
+
+        1 - Single user mode (switched from multi-user)
+
+        2 - Multiuser, without networking
+
+        3 - Full multiuser mode, with networking
+
+        4 - unused
+
+        5 - X11 (GUI)
+
+        6 - reboot (Do NOT set initdefault to this)
+
+    ‘ls -l /etc/rc<1-6>.d’ to see different services run in each runlevel
+
+        If running something other than an init.d service, then probably malicious
+
+Partitions
+
+    BLOCK DEVICE (Physical or Virtual) >> Partition Table >> Logical Partition >> Filesystem (ext3,ext4,FAT)
+
+    Hard disks, USBs, SD cards, or anything with storage space must have at least one partition in order to be used
+
+    Multiple partitions can exist on a single storage device, and you can format each partition with a different file system
+
+    A partition is the logical segmentation of a single storage device into multiple usable sections
+
+    Two main types of HD Partitioning:
+
+        MBR - Master Boot Record
+
+        GPT - GUID (Globally Unique Identifiers) Partition Table
+
+Resources
+
+    sysv vs systemd
+
+    inittab
+
+    linux boot process
+
+    bios and uefi
+
+    Grub2 / Grub Manual
+
+
+
+
+
+
+
+
+
+
