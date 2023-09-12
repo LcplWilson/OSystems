@@ -1387,4 +1387,53 @@ dd  = bit for bit copy
 
 persistance in /etc/init.d, /etc/profile.d, /etc/envirment and /etc/.bash_profile /etc/rc#.d
 
+windows validity
+
+How do we discover Normal, abnormal, and Hidden Processes and Services?
+
+    Get-Process SMSS,CSRSS,LSASS | Sort -Property Id
+
+Do boot processes have descriptions?
+
+    Get-Process | Select Name, Id, Description | Sort -Property Id
+
+Where do the system processes and services normally run from? (C:\Windows\System32)
+
+    Get-Process | Select Name, Id, Path
+
+    Get-Ciminstance Win32_service | Select Name, Processid, Pathname
+
+    get-process -name "*chrome*" | select-object -expandproperty Modules | more 
+
+    get-process | select name, id, description, path | sort -property id more
+
+
+C:\Windows\System32\ntdll.dll
+
+    get-process -name "*chrome*" | select-object -ExpandProperty modules | where modulename -like '*chrome*' | more
+
+    get-ciminstance 
+
+    get-ciminstance services | select name,processid,parentprocessid,path | ft -wrap | more
+
+    get-ciminstance win32_service | select name,processid, pathname | more
+    
+    Are Priority Levels of processes important?
+
+        Get-Process | Select Name, Priorityclass
+
+        Tasklist /m
+
+Discovering Hidden Processes, Services, and finding Normal and Abnormal Activity
+
+    Q: What are some additional ways that Malware hides?
+
+Discovering Hidden Processes, Services, and finding Normal and Abnormal Activity
+
+    Q: How would malware use Schedule Task?
+
+        schtasks /query | more
+
+        Get-ScheduledTask | Select * | Select -First 5
+
 
