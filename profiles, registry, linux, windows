@@ -1436,4 +1436,67 @@ Discovering Hidden Processes, Services, and finding Normal and Abnormal Activity
 
         Get-ScheduledTask | Select * | Select -First 5
 
+tasklist /m /fi "IMAGENAME eq chrome.exe"
+tasklist /fo:table | more 
+sc query | more 
+sc queryex type=service
+sc queryex type=service state=inactive
+sc query (name of service)
+get-scheduledtask | more 
+get-scheduledtask | select * | select -first 1
+schtasks /query /tn "AAAA" /v fo list
+netstat
+get- nettcpconnection -state esablished
+asendeding and ecending 12345 or 54321 ports should be looked at
+
+    Does the file/binary/executable meet these conditions?
+
+        Auto Elvate is True
+
+            ./strings C:\Windows\System32\*.exe -accepteula | select-string -SimpleMatch "autoelevate"
+
+        Digitally Signed
+
+            ./sigcheck -m C:\Windows\System32\slui.exe -accepteula | Select-String -SimpleMatch "level"
+
+        Trusted Directory
+
+            i.e C:\Windows\System32
+
+net use * http://live.sysinternals.com
+
+new-PSDrive -name "sysInt" -PSProvider filesystem -root "\\live.sysinternals.com\Tools"
+$wc = new-object System.Net.webclient
+$wc.downloadfile("https://download.sysinternals.com/files/sysinternalsSuite.zip", "$pwd\sysinternalsSuite.zip")
+
+.\Procom.exe -accepteula
+.\autoruns.exe  important
+.\processmonitor
+.\procexp.exe
+.\tcpview
+.\psloggedon.exe -accepteula 
+.\logonsessions.exe -accepteula
+.\strings.exe -accepteula -s C:\windows\system32\*.exe | findstr /i autoelevate
+    Enumerate Windows with SYSINTERNALS
+
+        Analyze Windows boot process using PROCMON
+
+        Analyze Windows startup environment using AUTORUNS
+
+        Analyze Windows running processes using PROCEXP
+
+        Analyze Windows network connections using TCPVIEW
+
+        Analyze Windows logons using PSLOGGEDON
+
+        Analyze Windows session using LOGONSESSIONS
+
+        Analyze Windows processes using PSLIST
+
+        Analyze Windows system information using PSINFO
+
+        Analyze Windows handles using HANDLE
+
+
+
 
