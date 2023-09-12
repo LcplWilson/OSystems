@@ -1468,6 +1468,7 @@ net use * http://live.sysinternals.com
 new-PSDrive -name "sysInt" -PSProvider filesystem -root "\\live.sysinternals.com\Tools"
 $wc = new-object System.Net.webclient
 $wc.downloadfile("https://download.sysinternals.com/files/sysinternalsSuite.zip", "$pwd\sysinternalsSuite.zip")
+expand-archive sysinternalsSuite.zip
 
 .\Procom.exe -accepteula
 .\autoruns.exe  important
