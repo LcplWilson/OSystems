@@ -1501,3 +1501,195 @@ expand-archive sysinternalsSuite.zip
 
 
 
+
+
+
+    There are two primary processes after startup:
+
+        For kernel-space processes [kthreadd] ( PID = 2 )
+
+        For user-space processes /sbin/init ( PID = 1 )
+
+    All kernel processes are fork()ed from [kthreadd] and all user processes are fork()ed from /sbin/init or direct ancestor.
+
+    Kernel processes are typically used to manage hardware, are directly handled by the kernel,have their own memory space, and have a high priority.
+
+    They can be identified by the name enclosed in square brackets [] (using the -f option with ps). kthreadd spawned processes will have a PPID of 2.
+
+    The kernel starts /sbin/init which is the parent/grandparent of all user processes.
+Kernel vs User Space
+
+    The kernel processes run in its own memory space. User processes run in a separate memory space. Code running in kernel mode has unrestricted access to the processor and main memory. This is a powerful but dangerous privilege that allows a kernel process to easily crash the entire system. The area that only the kernel can access is called kernel space.
+
+    User mode, in comparison, restricts access to a (usually quite small) subset of memory and safe CPU operations. User space refers to the parts of main memory that the user processes can access. If a process makes a mistake and crashes, the consequences are limited and can be cleaned up by the kernel. This means that if your web browser crashes, it won’t take down
+
+Process Ownership, EUID, RUID
+
+    The effective user ID (euid), defines the access rights for a process. A second user ID, the real user ID (ruid), indicates who initiated a process.
+
+    The real user ID defines the user that can interact with the running process—most significantly, which user can kill and send signals to a process.
+
+    Users can only modify / interact with files /process that they own or have been shared with them.
+
+    A user is an entity that can run processes and own files. Users exist primarily to support permissions and boundaries. Every user-space process has a user owner, and processes are said to run as the owner. A user may terminate or modify the behavior of its own processes (within certain limits), but it cannot interfere with other users’ processes. In addition, users may own files and choose whether they share them with other users.
+
+System Calls
+
+    A system call is an interaction between a process and the kernel.
+
+    Two system calls, fork() and exec(), are important to understanding how processes startup:
+
+        fork() When a process calls fork(), the kernel creates a nearly identical copy of the process.
+
+        exec() When a process calls exec(program), the kernel starts program, replacing the current process.
+
+Orphan and Zombie (defunct) Processes
+
+    Orphan - Parent process exited, adopted by sbin/init with PPID of 1.
+
+        All daemons are orphans
+
+        disown -a && exit # Close a shell/terminal and force all children to be adopted
+
+    Zombie (defunct) - completed process, but still has an entry in the process table, waiting on parent to acknowledge or terminate.
+
+        Zombie can’t be terminated with kill since it has already finished execution, unless the parent process that spawned it is killed.
+
+        Do not use resources, but do take up an entry of the process table which is a finite resource
+
+    Fork Bomb - denial-of-service attack wherein a process continually replicates itself to deplete available system resources,
+
+        Remedy - ‘ulimit -u 30’ sets the max processes a user can run at 30
+
+Demonstrations 2
+
+    orphan.sh
+
+    zombie.sh
+
+Daemons (Services)
+
+    Program that runs as a background process (Ex. syslogd, sshd, cron)
+
+    All daemons are Orphans, but all orphans are not Daemons
+
+    A daemons purpose is to manage/monitor a service: {status, start, restart}
+
+    ‘man cron’ - to see an example of a daemon that starts during the boot process
+
+    Persistence - Daemons are service that should run for duration of system operation, since init is parent, would require shutdown for parent to die.
+
+    Malicious processes are sometimes orphaned and named to make it look like a daemon process ‘ps --ppid 1 -lf’
+
+ps -elf
+ps -elf --ppid
+
+Jobs Control
+
+    ‘jobs’ - Display List of Jobs running in the background
+
+    ‘fg’ or ‘bg’ - Push / Pull jobs to / from the foreground / background
+
+    ‘kill %<job number>’ - Terminate the process by job number
+
+    ‘[ctrl -z]’ or ‘kill -19’ - stop / suspend the job
+
+    ‘kill -9 <PID>’ or ‘pkill -9 <process name>’
+
+        Stop Process = SIGSTOP(19) (pause signal, let’s you continue later, does not kill process)
+
+        End Process = SIGTERM(15) (termination signal, the right way, the application can intercept this signal and initiate shutdown tasks such as temp file cleanup)
+
+        Kill Process = SIGKILL(9) (kill signal, extreme, only use if SIGTERM doesn’t work, won’t initiate shutdown tasks)
+
+Demonstrations 3
+
+    Jobs Demo
+
+Cron Jobs
+
+    cron daemon checks the directories /var/spool/cron, /etc/cron.d and the file /etc/crontab, once a minute and executes any commands specified that match the time.
+
+    Two types of cron jobs
+
+        System cron jobs
+
+            run as root and rigidly scheduled
+
+            perform system-wide maintenance tasks (Cleaning out /tmp or rotating logs)
+
+            controlled by /etc/crontab
+
+        User cron jobs
+
+            Use 'crontab’ command to create user cron jobs
+
+            stored in /var/spool/cron/crontabs/
+Cron Jobs (Continued)
+
+    ‘crontab -u [user] file’ - sets users crontab file to the contents of listed file
+
+    ‘crontab -l -u [user]’ - Displays user’s crontab contents
+
+    ‘crontab -r -u [user]’ - Removes user’s crontab contents
+
+    ‘crontab -e -u [user]’ - edits user’s crontab contents
+
+    crontab jobs run with the permissions of the owner of the crontab file
+
+Cron Syntax
+
+* * * * * * /directory/and/command
+| | | | | |
+| | | | +---- Day of the Week   (range: 0-7, 1 = Monday)
+| | | | +------ Month of the Year (range: 1-12)
+| | | +-------- Day of the Month  (range: 1-31)
+| | +---------- Hour              (range: 0-23)
+| +------------ Minute            (range: 0-59)
++-------------- intervals         (how often it occors)
+
+
+
+top 
+htop
+ps -elf | head
+ps -elf --forest
+kill -l 
+SIG -9
+daemons in linux can be a form of persistancy
+kill -19 
+SIGKILL
+
+persistance 
+init, deamons, crontab, /etc/profile, /etc/bash.rc, /etc/profile.d
+cat
+
+/etc/profiles
+
+
+systemctl list-units
+
+systemd call them unixs
+
+ping 8.8.8.8 &
+fg 
+ctrl z 
+jobs
+kill -9 %1 = kills whatever job is in
+/etc/crontab =system jobs
+if file is in ect/crontab cat it to see whats in it
+
+/var/spool/crontab = use jobs
+
+sudo lsof = shows all open files
+This information and more available in the lsof man page.
+
+# - The number in front of flag(s) is the file descriptor number used by the process associated with the file
+u - File open with Read and Write permission
+r - File open with Read permission
+w - File open with Write permission
+W - File open with Write permission and with Write Lock on entire file
+mem - Memory mapped file, usually for share library
+
+sudo netstat -anpo, -ltup
+
