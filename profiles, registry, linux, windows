@@ -1693,3 +1693,224 @@ mem - Memory mapped file, usually for share library
 
 sudo netstat -anpo, -ltup
 
+
+
+
+
+
+Getting user SID
+
+    Many artifacts will require the operator use a Security Identifer (SID) to dig in user specific registry locations to enumerate the artifact information. A few ways to achieve this are provided below:
+
+    get-wmiobject win32_useraccount | select name,sid (PowerShell)
+
+    Get-LocalUser | select Name,SID (PowerShell)
+
+    wmic useraccount get name,sid (CMD.EXE ONLY)
+UserAssist
+
+    The UserAssist registry key tracks the GUI-based programs that were ran by a particular user.
+
+    View executable Files run
+
+    Get-ItemProperty 'REGISTRY::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}\Count'
+
+    View Shortcut files executed
+
+    Get-ItemProperty 'REGISTRY::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{F4E57C4B-2036-45F0-A9AB-443BCFE33D9F}\Count'
+
+Windows Background Activity Moderator (BAM)
+
+    BAM is a Windows service that Controls activity of background applications.
+
+    Get-Itemproperty 'HKLM:\SYSTEM\CurrentControlSet\Services\bam\UserSettings\*' (Windows 1709 & 1803)
+
+    Get-Itemproperty 'HKLM:\SYSTEM\CurrentControlSet\Services\bam\state\UserSettings\*' (Windows 1809 and newer)
+
+Recycle Bin
+
+    The recycle bin is a very important location on a Windows file system to understand. It can help you accomplish a forensic investigation.
+
+    gci 'C:\$RECYCLE.BIN' -Recurse -Verbose -Force | select *
+
+    gci 'C:\$RECYCLE.BIN' -Recurse -Force
+
+Prefetch
+
+    Prefetch files are created by the windows operating system when an application is run from a specific location for the first time.
+
+    gci -Path 'C:\Windows\Prefetch' -ErrorAction Continue | select * | select -first 5
+
+Jump Lists
+
+    The Windows 7-10 taskbar (Jump List) is engineered to allow users to “jump” or access items they have frequently or recently used quickly and easily.
+
+    gci -Recurse C:\Users\*\AppData\Roaming\Microsoft\Windows\Recent -ErrorAction Continue | select FullName, LastAccessTime
+
+Recent Files
+
+    Registry Key that will track the last files and folders opened and is used to populate data in “Recent” menus of the Start menu.
+
+    Overall key will track the overall order of the last 150 files or folders opened.
+
+    List Files in Recent Docs
+
+    gci 'REGISTRY::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs'
+
+    Convert File Hex to Unicode
+
+    [System.Text.Encoding]::Unicode.GetString((gp "REGISTRY::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.txt")."0")
+
+Recent Files (Continued)
+
+    Convert all of a users values from HEX to Unicode
+
+    Get-Item "REGISTRY::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.txt" | select -Expand property | ForEach-Object { [System.Text.Encoding]::Default.GetString((Get-ItemProperty -Path "REGISTRY::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.txt" -Name $_).$_)}
+
+Browser Artifacts
+
+    Stores details for each user account.
+
+    History will record the access to the file on the website that was accessed via a link.
+
+    .\strings.exe 'C:\Users\<username>\AppData\Local\Google\Chrome\User Data\Default\History'
+
+    Find FQDNs in Sqlite Text Files
+
+    $History = (Get-Content 'C:\users\<username>\AppData\Local\Google\Chrome\User Data\Default\History') -replace "[^a-zA-Z0-9\.\:\/]",""
+
+    $History| Select-String -Pattern "(https|http):\/\/[a-zA-Z_0-9]+\.\w+[\.]?\w+" -AllMatches|foreach {$_.Matches.Groups[0].Value}| ft
+
+Windows Auditing
+
+
+Outcome
+
+    Cover the startup process of the SRM.
+
+    Cover the categories of the event log.
+
+    Demonstrate configuring audit policies.
+
+Windows Event Log
+
+    What is the functionality of the main logs?
+
+        At startup (or on config changes), LSASS sends the system audit policy to the Security Reference Monitor (SRM).
+
+        When an object is accessed, SRM generates auditing messages and sends them to LSASS.
+
+        LSASS sends the event log messages on to the Event Logger.
+
+Windows Event Log
+
+Application - Contains events logged by applications.
+
+Security - Contains events such as valid/ invalid logon attempts and other events related to resource use like creating, opening, or deleting files.
+
+System - Contains events logged by system components, such as driver failures other system component to load during startup.
+
+CustomLog - Contains events logged by applications that create a custom log.
+Using a custom log enables an application to control the size of the log or attach ACLs for security purposes without affecting other applications.
+Configure Audit Policy
+
+    View entire auditpol list
+
+        auditpol /get /category:*
+
+    Set File SYstem subcategory to audit
+
+        auditpol /set /subcategory:"File System"
+
+    Remove File System subcategory auditing
+
+        auditpol /set /subcategory:"File System" /success:disable
+
+    To list the global object access auditing entries set on files or folders:
+
+        auditpol /resourceSACL /type:File /view
+
+    To list the global object access auditing entries set on Registry Keys
+
+        auditpol /resourceSACL /type:Key /view
+
+View/ Analyze Event Logs - GUI
+
+    eventvwr
+
+        Located in C:\Windows\System32\Winevt folder.
+
+        Locations are configurable.
+View/ Analyze Event Logs - CLI
+
+    show all logs
+
+        wevtutil el
+
+    get log info
+
+        wevtutil gli security
+
+    get last 3 events
+
+        wevtutil qe security /c:3 /f:text
+
+View/ Analyze Event Logs - Powershell
+
+    View newest 10 System Logs
+
+        Get-EventLog -LogName System -Newest 10
+
+    View the entire message field in the Security Log
+
+        Get-Eventlog -LogName Security | ft -wrap
+
+    Search logs with mutiple criteria
+
+        get-winevent -FilterHashtable @{logname="security";id="4624"} | select -first 5 | ft -wrap
+
+Event IDs to Search for Malicious Actors
+
+User Added to Privileged Group
+	
+
+4728, 4732, 4756
+
+Security-Enabled group Modification
+	
+
+4735
+
+Successful/ Failed User Account Login
+	
+
+4624, 4625
+
+
+    Allows the capture of the input and output of Windows PowerShell commands into text-based transcripts.
+
+        Start-Transcript
+
+    View Powershell console History
+
+        Get-History
+
+    View entire powershell History
+
+        Get-Content "C:\users\$env:username\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
+
+Script Block Logging
+
+    Logs detailed processing of commands, script blocks, functions, and scripts to the Microsoft-Windows-PowerShell/Operational event log.
+
+    Logging is enabled through the Turn on PowerShell Script Block Logging Group Policy setting in
+
+        Administrative Templates → Windows Components → Windows PowerShell
+
+    Turn on script black logging via the Registry
+
+        reg.exe add HKLM\SOFTWARE\Wow6432Node\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging\ /v EnableScriptBlockLogging /t REG_DWORD /d 1 /f
+
+CTFd Challenges
+
+
