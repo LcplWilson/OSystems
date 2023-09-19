@@ -1,4 +1,4 @@
-newstack 21 10.50.43.127
+newstack 27 10.50.27.126
 https://os.cybbh.io/public/os/latest/index.html
 https://vta.cybbh.space/horizon/project/instances/
 https://os.cybbh.io/public/os/latest/index.html
@@ -2063,4 +2063,10 @@ journalctl --list -boot
 journalctl -u ssh.service
 sudo !!
 
+Get-Command -Module activedirectory
+Get-ADDefaultDomainPasswordPolicy
+Get-ADFineGrainedPasswordPolicy -Filter {name -like "*"}
+Get-ADForest
+Get-ADDomain
+Get-ADGroup -Filter *
 
