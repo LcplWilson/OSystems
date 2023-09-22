@@ -2077,7 +2077,8 @@ Get-ADGroup -Filter *
 
 
 
-
+4 10.50.39.91 - linux ssh student@10.50.39.91
+   10.50.45.30 - windows student password
 
 
 
