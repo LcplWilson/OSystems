@@ -1992,6 +1992,9 @@ Severity Codes
 1  alert:         Action must be taken immediately
 2  crit:          Critical conditions
 3  err, error:    Error conditions
+
+
+
 4  warn, warning: Warning conditions
 5  notice:        Normal but significant condition
 6  info:          Informational messages
@@ -2069,4 +2072,27 @@ Get-ADFineGrainedPasswordPolicy -Filter {name -like "*"}
 Get-ADForest
 Get-ADDomain
 Get-ADGroup -Filter *
+
+
+
+
+
+
+
+
+
+TEST 
+linux sudo netstat -ltup
+ps | grep (pid)
+systemctl services
+bash.rc, cronjob ( /etc/cron.d /etc/crontab), bash.profile, inittab -> open file
+
+windows 
+netstat -ano
+tasklist 
+decode rot13 userassist,BAM, recycle bin, prefetch
+run key, runonce key, services, HKLM, HKCU
+task, profiles, schtask
+procmon, autorun (turn off hide windows entries)-> sysinterals tool
+net use * http://live.sysinternals.com
 
